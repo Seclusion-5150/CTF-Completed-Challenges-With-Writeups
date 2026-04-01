@@ -15,7 +15,7 @@ void pwnme(char * pivot)
 
 void uselessFunction()
 {
-	foothold();
+	foothold_function();
 	exit(1);
 }
 
